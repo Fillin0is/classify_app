@@ -118,7 +118,8 @@ class Database:
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(
-                    "INSERT INTO users (login, email, password_hash, id_role, created_at) VALUES (%s, %s, %s, 2, NOW())",
+                    "INSERT INTO users (login, email, password_hash, id_role, created_at) " \
+                    "VALUES (%s, %s, %s, 2, NOW())",
                     (login, email, self._hash_password(password)))
                 return cursor.rowcount == 1
         except pymysql.Error as e:

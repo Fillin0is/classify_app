@@ -13,6 +13,7 @@ __pycache__/
 # Данные
 *.db
 *.sqlite
+*.pkl
 *.h5
 *.pt
 

@@ -1,0 +1,31 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Установка системных зависимостей (добавлены для cryptography и scikit-learn)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    default-libmysqlclient-dev \
+    libssl-dev \  # Для криптографии
+    && rm -rf /var/lib/apt/lists/*
+
+# Сначала копируем зависимости для кэширования
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Копируем структуру проекта (включая модели)
+COPY app/ ./app/
+
+# Создаем явные симлинки для совместимости
+RUN ln -sf /app/app/models /app/models && \
+    mkdir -p /app/utils/models && \
+    ln -sf /app/app/models /app/utils/models  # Для обратной совместимости
+
+# Проверка наличия моделей (отладочный шаг)
+RUN ls -la /app/app/models/ && \
+    [ -f /app/app/models/naive_bayes.pkl ] || echo "Внимание: Модели не найдены!"
+
+EXPOSE 8501
+
+CMD ["streamlit", "run", "app/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
